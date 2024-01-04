@@ -6,9 +6,6 @@
   ffmpeg_5,
   SDL2,
   SDL2_image,
-  gcc,
-  # repo version during build
-  git,
   # usb streaming
   libusb1,
   # for the builtin player
@@ -18,16 +15,15 @@
 }:
 buildDotnetModule rec {
   pname = "SysDVR-Client";
-  version = "b68349f9c6896ecdaf420cd53e298f914f2e5400";
+  version = "b923f068eda208e7129bd3cd04aa8b27b79ca6b2";
 
   src =
     fetchFromGitHub {
       owner = "exelix11";
       repo = "SysDVR";
       rev = "${version}";
-      hash = "sha256-QUuKZKuuMHxmyloAIiDxwZBZOQbOPqvo/EtSfPTtWvU=";
+      hash = "sha256-bLNUD5YQf72a8fGYxYbizg98S+fnbKyb4TgexUUwtKg=";
       name = "${pname}-git-${version}";
-      leaveDotGit = true;
     }
     + "/Client";
 
@@ -39,11 +35,13 @@ buildDotnetModule rec {
     cp ${CimguiSDL2Cross}/lib/cimgui.so Resources/linux-x64/native
   '';
 
-  buildInputs = [git gcc];
   nugetDeps = ./deps.nix;
   runtimeDeps = [ffmpeg_5 SDL2 SDL2_image libusb1 pulseaudio libGL CimguiSDL2Cross];
   buildType = "Release";
-  dotnetFlags = ["-property:PublishAot=false"];
+  dotnetFlags = [
+    "-property:PublishAot=false"
+    "-property:GitCommitHash=${builtins.substring 0 7 version}-nix"
+  ];
 
   executables = ["SysDVR-Client"];
 
